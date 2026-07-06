@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>World Cup 2026 — Fan Engagement Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================ Theme ============================ */
+:root{
+  --bg:#08110f; --panel:#0e1b18; --panel2:#12241f; --panel3:#16302a;
+  --line:rgba(120,200,170,.14); --line-strong:rgba(120,200,170,.28);
+  --turf:#3ddc84; --turf-dim:#1f7a4d; --gold:#f5c451; --coral:#ff5a5f;
+  --ink:#eaf2ee; --muted:#8aa79c; --muted2:#5f7a70;
+  --stamp:#ffb020;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+  --display:'Anton','Arial Narrow','Oswald',system-ui,sans-serif;
+  --cond:'Archivo Narrow','Arial Narrow',system-ui,sans-serif;
+  --body:'Archivo','Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(61,220,132,.10), transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, rgba(245,196,81,.06), transparent 55%),
+    var(--bg);
+  color:var(--ink); font-family:var(--body); line-height:1.5;
+  -webkit-font-smoothing:antialiased; min-height:100vh;
+}
+a{color:inherit}
+button{font-family:inherit}
+.mono-num{font-variant-numeric:tabular-nums}
+
+/* pitch-chalk hairline used as a recurring motif */
+.chalk{border:1px solid var(--line)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* ============================ Scoreboard header (signature) ============================ */
+.board{
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg, #0b1714, #081210);
+  border-bottom:1px solid var(--line-strong);
+  backdrop-filter:blur(6px);
+}
+.board-top{display:flex;align-items:center;gap:16px;padding:12px 20px;max-width:1180px;margin:0 auto;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;min-width:0}
+.logo .cap{
+  font-family:var(--display);letter-spacing:.5px;font-size:26px;line-height:.9;
+  text-transform:uppercase;color:var(--ink);
+}
+.logo .cap b{color:var(--turf)}
+.logo .sub{font-family:var(--cond);text-transform:uppercase;letter-spacing:2px;font-size:11px;color:var(--muted)}
+.stamp{
+  margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+  border:1.5px dashed var(--stamp);color:var(--stamp);
+  padding:5px 10px;border-radius:6px;font-family:var(--cond);
+  text-transform:uppercase;letter-spacing:1.5px;font-size:11px;font-weight:700;
+  transform:rotate(-1.2deg);white-space:nowrap;
+}
+.stamp .dot{width:7px;height:7px;border-radius:50%;background:var(--stamp);box-shadow:0 0 10px var(--stamp)}
+
+/* ticker */
+.ticker{border-top:1px solid var(--line);overflow:hidden;background:#0a1512}
+.ticker-inner{display:flex;gap:34px;white-space:nowrap;padding:7px 0;animation:scroll 42s linear infinite;font-family:var(--cond);font-size:13px;letter-spacing:.3px}
+.ticker:hover .ticker-inner{animation-play-state:paused}
+.ticker .t{color:var(--muted)}
+.ticker .t b{color:var(--ink)}
+.ticker .s{color:var(--turf);font-weight:700}
+.ticker .lbl{color:var(--coral);font-weight:700;letter-spacing:1px}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* nav */
+.nav{display:flex;gap:4px;overflow-x:auto;max-width:1180px;margin:0 auto;padding:0 12px}
+.nav::-webkit-scrollbar{height:0}
+.tab{
+  appearance:none;background:transparent;border:0;color:var(--muted);
+  font-family:var(--cond);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;
+  font-size:13px;padding:12px 14px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--turf);border-bottom-color:var(--turf)}
+.tab .n{font-family:var(--display);font-size:11px;color:var(--muted2);margin-right:6px}
+
+/* ============================ Generic ============================ */
+main{padding:28px 0 80px}
+.eyebrow{font-family:var(--cond);text-transform:uppercase;letter-spacing:3px;font-size:12px;color:var(--turf);font-weight:700}
+h1.big{font-family:var(--display);font-size:clamp(38px,7vw,74px);line-height:.92;text-transform:uppercase;margin:8px 0 6px;letter-spacing:.5px}
+h2.sec{font-family:var(--display);text-transform:uppercase;font-size:clamp(22px,3.4vw,32px);letter-spacing:.6px;margin:0 0 4px}
+.lead{color:var(--muted);max-width:60ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.pad{padding:18px}
+.grid{display:grid;gap:14px}
+.btn{
+  appearance:none;border:1px solid var(--turf-dim);background:linear-gradient(180deg,#123, #0e1b18);
+  color:var(--turf);font-family:var(--cond);text-transform:uppercase;letter-spacing:1.4px;font-weight:700;
+  padding:11px 16px;border-radius:10px;cursor:pointer;font-size:13px;transition:.15s;
+}
+.btn:hover{background:var(--turf);color:#062;box-shadow:0 0 0 3px rgba(61,220,132,.15)}
+.btn.gold{border-color:#8a6d1f;color:var(--gold)}
+.btn.gold:hover{background:var(--gold);color:#3a2c00}
+.btn.ghost{border-color:var(--line-strong);color:var(--ink)}
+.btn.ghost:hover{background:var(--panel3);color:var(--ink);box-shadow:none}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted)}
+.pill.turf{color:var(--turf);border-color:var(--turf-dim)}
+.pill.gold{color:var(--gold);border-color:#8a6d1f}
+.pill.sample{color:var(--stamp);border-color:#7a5a12;background:rgba(255,176,32,.06)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* summary stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(61,220,132,.10),transparent 70%)}
+.stat .k{font-family:var(--display);font-size:44px;line-height:.9;color:var(--ink)}
+.stat .k.gold{color:var(--gold)} .stat .k.turf{color:var(--turf)}
+.stat .l{font-family:var(--cond);text-transform:uppercase;letter-spacing:1.5px;font-size:12px;color:var(--muted);margin-top:6px}
+
+/* team grid */
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 18px}
+.input,select{
+  background:var(--panel2);border:1px solid var(--line-strong);color:var(--ink);
+  border-radius:10px;padding:10px 12px;font-family:var(--body);font-size:14px;min-width:0;
+}
+.input:focus,select:focus{outline:2px solid var(--turf-dim);outline-offset:1px}
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.team{
+  text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;
+  cursor:pointer;transition:.15s;position:relative;color:inherit;
+}
+.team:hover{border-color:var(--turf-dim);transform:translateY(-2px);box-shadow:var(--shadow)}
+.team .flag{font-size:34px;line-height:1}
+.team .nm{font-family:var(--cond);font-weight:700;font-size:17px;margin-top:8px;letter-spacing:.3px}
+.team .meta{color:var(--muted);font-size:12px;margin-top:2px}
+.team .grp{position:absolute;top:12px;right:12px;font-family:var(--display);font-size:13px;color:var(--turf);border:1px solid var(--turf-dim);border-radius:8px;padding:2px 8px}
+.team .sup{margin-top:10px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gold)}
+.meter{height:6px;border-radius:99px;background:var(--panel3);overflow:hidden;flex:1;border:1px solid var(--line)}
+.meter > span{display:block;height:100%;background:linear-gradient(90deg,var(--turf),var(--gold))}
+
+/* group tables */
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px 8px;text-align:right;font-size:13px}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;color:var(--muted2);font-size:11px;border-bottom:1px solid var(--line)}
+tbody tr{border-bottom:1px solid var(--line)}
+tbody tr:last-child{border-bottom:0}
+.q{color:var(--turf)}
+.rankdot{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:6px;font-size:11px;font-family:var(--display);margin-right:8px;background:var(--panel3);color:var(--muted)}
+tr.adv .rankdot{background:var(--turf-dim);color:#eafff2}
+
+/* support chart */
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 46px;align-items:center;gap:12px}
+.bar-row .nm{font-family:var(--cond);font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{height:22px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--turf-dim),var(--turf));border-right:2px solid var(--gold);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.bar-row .v{text-align:right;font-family:var(--display);color:var(--gold);font-size:16px}
+
+/* AI panel */
+.ai{border:1px solid var(--line-strong);border-radius:14px;background:linear-gradient(180deg,#0f201b,#0c1815);overflow:hidden}
+.ai-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ai-head .badge{margin-left:auto;font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;font-size:10px;font-weight:700;color:var(--turf);border:1px solid var(--turf-dim);padding:3px 8px;border-radius:99px}
+.ai-body{padding:16px}
+.ai-body p{margin:0 0 10px}
+.ai-body .src{font-size:12px;color:var(--muted2);border-left:2px solid var(--line-strong);padding-left:10px;margin-top:8px}
+.rec{display:grid;gap:10px}
+.rec .item{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.rec .item .ic{font-size:20px}
+.rec .item .h{font-family:var(--cond);font-weight:700;letter-spacing:.4px}
+
+/* profile modal */
+.overlay{position:fixed;inset:0;background:rgba(3,8,6,.72);backdrop-filter:blur(3px);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow:auto}
+.modal{width:min(760px,100%);background:var(--panel);border:1px solid var(--line-strong);border-radius:16px;box-shadow:var(--shadow)}
+.modal .top{display:flex;gap:16px;align-items:flex-start;padding:20px;border-bottom:1px solid var(--line)}
+.modal .top .fl{font-size:56px;line-height:1}
+.modal .x{margin-left:auto;background:transparent;border:1px solid var(--line-strong);color:var(--muted);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:18px}
+.modal .x:hover{color:var(--ink);background:var(--panel3)}
+.statline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.statline .b{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.statline .b .n{font-family:var(--display);font-size:26px}
+.statline .b .t{font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;font-size:10px;color:var(--muted)}
+
+/* form */
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-family:var(--cond);text-transform:uppercase;letter-spacing:1.2px;font-size:12px;color:var(--muted)}
+.field .input,.field select,.field textarea{width:100%}
+textarea{background:var(--panel2);border:1px solid var(--line-strong);color:var(--ink);border-radius:10px;padding:10px 12px;font-family:var(--body);font-size:14px;resize:vertical;min-height:70px}
+
+/* identity card */
+.idcard{background:linear-gradient(135deg,#123c2c,#0c1f18 60%);border:1px solid var(--turf-dim);border-radius:16px;padding:18px;position:relative;overflow:hidden}
+.idcard::before{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(245,196,81,.16),transparent 70%)}
+.idcard .who{font-family:var(--display);font-size:26px;text-transform:uppercase;line-height:1}
+.idcard .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+.foot{border-top:1px solid var(--line);color:var(--muted2);font-size:12px;padding:22px 0 40px;margin-top:40px}
+.notice{background:rgba(255,176,32,.06);border:1px solid #7a5a12;color:#f0c674;border-radius:12px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+
+@media(max-width:820px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .form{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:110px 1fr 40px}
+  .statline{grid-template-columns:repeat(2,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  .ticker-inner{animation:none}
+  .bar-fill{transition:none}
+  .team:hover{transform:none}
+}
+:focus-visible{outline:2px solid var(--turf);outline-offset:2px;border-radius:6px}
+</style>
+</head>
+<body>
+<header class="board">
+  <div class="board-top">
+    <div class="logo">
+      <div>
+        <div class="cap">WORLD&nbsp;CUP <b>26</b></div>
+        <div class="sub">Independent fan engagement prototype</div>
+      </div>
+    </div>
+    <span class="stamp"><span class="dot"></span>Sample data · not FIFA</span>
+  </div>
+  <div class="ticker" aria-hidden="true"><div class="ticker-inner" id="ticker"></div></div>
+  <nav class="nav" role="tablist" id="nav"></nav>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<footer class="foot wrap">
+  Independent, unofficial <b>World Cup fan-engagement prototype</b> · not affiliated with or endorsed by FIFA.
+  Fixtures &amp; standings shown are <b>sample</b> data; historical facts are drawn from public-domain football history.
+  Fan profiles &amp; support counts are locally generated. AI insights run on a local grounded rule engine when no API key is set.
+</footer>
+
+<!-- ================= Committed snapshot (also lives at data/worldcup.json) ================= -->
+<script id="snapshot" type="application/json">{"meta":{"tournament":"World Cup 2026 (fan-engagement prototype)","hosts":["United States","Canada","Mexico"],"team_count":48,"group_count":12,"total_matches_real":104,"data_notice":"Illustrative snapshot for an INDEPENDENT fan prototype. Not affiliated with or endorsed by FIFA. The 48-team field, the group draw, all fixtures and all standings are SAMPLE data generated for demonstration. Historical 'best finish' facts flagged source='historical' are real; those flagged 'sample' are illustrative.","source":"Team list & historical facts adapted from public-domain football history (see openfootball/worldcup.json). Fixtures/standings synthetic.","generated_seed":2026},"teams":[{"name":"United States","code":"USA","flag":"🇺🇸","confederation":"CONCACAF","best_finish":{"text":"Third place (1930)","source":"historical"},"history":"Co-hosts of 2026. Reached the 1930 semi-finals and the 2002 quarter-finals; a regular knockout-stage side in the modern era.","group":"D"},{"name":"Mexico","code":"MEX","flag":"🇲🇽","confederation":"CONCACAF","best_finish":{"text":"Quarter-finals","source":"historical"},"history":"Co-hosts of 2026 and one of the most consistent World Cup qualifiers, repeatedly reaching the round of 16.","group":"A"},{"name":"Canada","code":"CAN","flag":"🇨🇦","confederation":"CONCACAF","best_finish":{"text":"Group stage","source":"historical"},"history":"Co-hosts of 2026. Returned to the World Cup in 2022 after a long absence; still chasing a first World Cup win.","group":"B"},{"name":"Brazil","code":"BRA","flag":"🇧🇷","confederation":"CONMEBOL","best_finish":{"text":"Champions (5 titles)","source":"historical"},"history":"The only nation to appear at every World Cup and record five-time champions (1958, 1962, 1970, 1994, 2002).","group":"F"},{"name":"Argentina","code":"ARG","flag":"🇦🇷","confederation":"CONMEBOL","best_finish":{"text":"Champions (3 titles)","source":"historical"},"history":"Champions in 1978, 1986 and 2022, the last led by Lionel Messi.","group":"C"},{"name":"Uruguay","code":"URU","flag":"🇺🇾","confederation":"CONMEBOL","best_finish":{"text":"Champions (2 titles)","source":"historical"},"history":"Winners of the first World Cup in 1930 and again in 1950; four-time semi-finalists.","group":"A"},{"name":"Colombia","code":"COL","flag":"🇨🇴","confederation":"CONMEBOL","best_finish":{"text":"Quarter-finals (2014)","source":"historical"},"history":"Reached the quarter-finals in 2014 with a memorable James Rodríguez campaign.","group":"K"},{"name":"Ecuador","code":"ECU","flag":"🇪🇨","confederation":"CONMEBOL","best_finish":{"text":"Round of 16 (2006)","source":"historical"},"history":"Best run came in 2006 when they advanced to the knockout rounds.","group":"J"},{"name":"Peru","code":"PER","flag":"🇵🇪","confederation":"CONMEBOL","best_finish":{"text":"Quarter-finals (1970)","source":"historical"},"history":"Quarter-finalists in 1970 and 1978 during a golden generation.","group":"L"},{"name":"Paraguay","code":"PAR","flag":"🇵🇾","confederation":"CONMEBOL","best_finish":{"text":"Quarter-finals (2010)","source":"historical"},"history":"Reached the last eight in 2010, their deepest World Cup run.","group":"L"},{"name":"France","code":"FRA","flag":"🇫🇷","confederation":"UEFA","best_finish":{"text":"Champions (2 titles)","source":"historical"},"history":"World champions in 1998 and 2018 and runners-up in 2022.","group":"G"},{"name":"England","code":"ENG","flag":"🏴","confederation":"UEFA","best_finish":{"text":"Champions (1966)","source":"historical"},"history":"1966 winners on home soil; semi-finalists in 2018 and losing finalists at Euro 2020/2024.","group":"J"},{"name":"Spain","code":"ESP","flag":"🇪🇸","confederation":"UEFA","best_finish":{"text":"Champions (2010)","source":"historical"},"history":"World champions in 2010, the peak of their tiki-taka era.","group":"E"},{"name":"Germany","code":"GER","flag":"🇩🇪","confederation":"UEFA","best_finish":{"text":"Champions (4 titles)","source":"historical"},"history":"Four-time champions (1954, 1974, 1990, 2014) and a fixture of the latter stages for decades.","group":"H"},{"name":"Portugal","code":"POR","flag":"🇵🇹","confederation":"UEFA","best_finish":{"text":"Third place (1966)","source":"historical"},"history":"Third in 1966 and semi-finalists in 2006; home to Cristiano Ronaldo's generation.","group":"I"},{"name":"Netherlands","code":"NED","flag":"🇳🇱","confederation":"UEFA","best_finish":{"text":"Runners-up (x3)","source":"historical"},"history":"Three-time runners-up (1974, 1978, 2010), famous for 'Total Football'.","group":"D"},{"name":"Italy","code":"ITA","flag":"🇮🇹","confederation":"UEFA","best_finish":{"text":"Champions (4 titles)","source":"historical"},"history":"Four-time champions (1934, 1938, 1982, 2006).","group":"L"},{"name":"Belgium","code":"BEL","flag":"🇧🇪","confederation":"UEFA","best_finish":{"text":"Third place (2018)","source":"historical"},"history":"A 'golden generation' that finished third in 2018.","group":"K"},{"name":"Croatia","code":"CRO","flag":"🇭🇷","confederation":"UEFA","best_finish":{"text":"Runners-up (2018)","source":"historical"},"history":"Runners-up in 2018 and third in 2022 despite a small population.","group":"B"},{"name":"Denmark","code":"DEN","flag":"🇩🇰","confederation":"UEFA","best_finish":{"text":"Quarter-finals (1998)","source":"historical"},"history":"Quarter-finalists in 1998; surprise Euro 1992 champions.","group":"C"},{"name":"Switzerland","code":"SUI","flag":"🇨🇭","confederation":"UEFA","best_finish":{"text":"Quarter-finals","source":"historical"},"history":"Quarter-finalists in 1934, 1938 and 1954; a reliable knockout-round side today.","group":"F"},{"name":"Poland","code":"POL","flag":"🇵🇱","confederation":"UEFA","best_finish":{"text":"Third place (x2)","source":"historical"},"history":"Third in 1974 and 1982 behind stars like Grzegorz Lato.","group":"H"},{"name":"Serbia","code":"SRB","flag":"🇷🇸","confederation":"UEFA","best_finish":{"text":"Fourth place","source":"historical"},"history":"As Yugoslavia, semi-finalists in 1930 and 1962.","group":"E"},{"name":"Austria","code":"AUT","flag":"🇦🇹","confederation":"UEFA","best_finish":{"text":"Third place (1954)","source":"historical"},"history":"Third in 1954, their standout World Cup.","group":"G"},{"name":"Ukraine","code":"UKR","flag":"🇺🇦","confederation":"UEFA","best_finish":{"text":"Quarter-finals (2006)","source":"historical"},"history":"Quarter-finalists on their debut in 2006.","group":"I"},{"name":"Norway","code":"NOR","flag":"🇳🇴","confederation":"UEFA","best_finish":{"text":"Round of 16 (1998)","source":"historical"},"history":"Reached the knockout rounds in 1998; building around a new generation.","group":"J"},{"name":"Sweden","code":"SWE","flag":"🇸🇪","confederation":"UEFA","best_finish":{"text":"Runners-up (1958)","source":"historical"},"history":"Runners-up as hosts in 1958 and third in 1994.","group":"K"},{"name":"Morocco","code":"MAR","flag":"🇲🇦","confederation":"CAF","best_finish":{"text":"Fourth place (2022)","source":"historical"},"history":"Became the first African semi-finalists in 2022.","group":"L"},{"name":"Senegal","code":"SEN","flag":"🇸🇳","confederation":"CAF","best_finish":{"text":"Quarter-finals (2002)","source":"historical"},"history":"Quarter-finalists on their 2002 debut and African champions in 2022 (AFCON).","group":"B"},{"name":"Nigeria","code":"NGA","flag":"🇳🇬","confederation":"CAF","best_finish":{"text":"Round of 16","source":"historical"},"history":"Multiple round-of-16 appearances since the 1990s.","group":"A"},{"name":"Ghana","code":"GHA","flag":"🇬🇭","confederation":"CAF","best_finish":{"text":"Quarter-finals (2010)","source":"historical"},"history":"Came within a penalty of the 2010 semi-finals.","group":"D"},{"name":"Cameroon","code":"CMR","flag":"🇨🇲","confederation":"CAF","best_finish":{"text":"Quarter-finals (1990)","source":"historical"},"history":"Quarter-finalists in 1990, a landmark run for African football.","group":"F"},{"name":"Egypt","code":"EGY","flag":"🇪🇬","confederation":"CAF","best_finish":{"text":"Group stage","source":"historical"},"history":"Record AFCON winners; World Cup appearances remain rare.","group":"G"},{"name":"Algeria","code":"ALG","flag":"🇩🇿","confederation":"CAF","best_finish":{"text":"Round of 16 (2014)","source":"historical"},"history":"Reached the knockouts in 2014, taking eventual champions Germany to extra time.","group":"J"},{"name":"Ivory Coast","code":"CIV","flag":"🇨🇮","confederation":"CAF","best_finish":{"text":"Group stage","source":"historical"},"history":"A regular qualifier in the Drogba era; African champions on home soil in 2024 (AFCON).","group":"K"},{"name":"Tunisia","code":"TUN","flag":"🇹🇳","confederation":"CAF","best_finish":{"text":"Group stage","source":"historical"},"history":"Long-standing qualifier still seeking a first knockout appearance.","group":"I"},{"name":"Japan","code":"JPN","flag":"🇯🇵","confederation":"AFC","best_finish":{"text":"Round of 16 (x4)","source":"historical"},"history":"Four-time round-of-16 side that beat Germany and Spain in 2022.","group":"E"},{"name":"South Korea","code":"KOR","flag":"🇰🇷","confederation":"AFC","best_finish":{"text":"Fourth place (2002)","source":"historical"},"history":"Co-hosts and semi-finalists in 2002, Asia's best World Cup finish.","group":"G"},{"name":"Iran","code":"IRN","flag":"🇮🇷","confederation":"AFC","best_finish":{"text":"Group stage","source":"historical"},"history":"One of Asia's most frequent qualifiers, still chasing a first knockout run.","group":"C"},{"name":"Australia","code":"AUS","flag":"🇦🇺","confederation":"AFC","best_finish":{"text":"Round of 16","source":"historical"},"history":"Reached the knockouts in 2006 and 2022 after moving to the Asian confederation.","group":"H"},{"name":"Saudi Arabia","code":"KSA","flag":"🇸🇦","confederation":"AFC","best_finish":{"text":"Round of 16 (1994)","source":"historical"},"history":"Round of 16 in 1994; famously beat Argentina in 2022.","group":"I"},{"name":"Qatar","code":"QAT","flag":"🇶🇦","confederation":"AFC","best_finish":{"text":"Group stage","source":"sample"},"history":"Hosts in 2022; back-to-back Asian champions (AFCON 2019, 2023).","group":"D"},{"name":"Iraq","code":"IRQ","flag":"🇮🇶","confederation":"AFC","best_finish":{"text":"Group stage","source":"sample"},"history":"2007 Asian Cup winners seeking a return to the World Cup stage.","group":"H"},{"name":"Uzbekistan","code":"UZB","flag":"🇺🇿","confederation":"AFC","best_finish":{"text":"Debut","source":"sample"},"history":"An emerging Central Asian side pushing for a maiden World Cup appearance.","group":"A"},{"name":"Costa Rica","code":"CRC","flag":"🇨🇷","confederation":"CONCACAF","best_finish":{"text":"Quarter-finals (2014)","source":"historical"},"history":"Topped a 'group of death' and reached the quarter-finals in 2014.","group":"C"},{"name":"Panama","code":"PAN","flag":"🇵🇦","confederation":"CONCACAF","best_finish":{"text":"Group stage (2018)","source":"historical"},"history":"Made their World Cup debut in 2018.","group":"B"},{"name":"Jamaica","code":"JAM","flag":"🇯🇲","confederation":"CONCACAF","best_finish":{"text":"Group stage (1998)","source":"historical"},"history":"The 'Reggae Boyz' appeared at their only World Cup in 1998.","group":"F"},{"name":"New Zealand","code":"NZL","flag":"🇳🇿","confederation":"OFC","best_finish":{"text":"Group stage (2010)","source":"historical"},"history":"Left the 2010 World Cup unbeaten across three draws.","group":"E"}],"groups":[{"letter":"A","teams":["Mexico","Uruguay","Nigeria","Uzbekistan"]},{"letter":"B","teams":["Canada","Croatia","Senegal","Panama"]},{"letter":"C","teams":["Argentina","Denmark","Iran","Costa Rica"]},{"letter":"D","teams":["United States","Netherlands","Ghana","Qatar"]},{"letter":"E","teams":["Spain","Serbia","Japan","New Zealand"]},{"letter":"F","teams":["Brazil","Switzerland","Cameroon","Jamaica"]},{"letter":"G","teams":["France","Austria","South Korea","Egypt"]},{"letter":"H","teams":["Germany","Poland","Australia","Iraq"]},{"letter":"I","teams":["Portugal","Ukraine","Saudi Arabia","Tunisia"]},{"letter":"J","teams":["England","Ecuador","Algeria","Norway"]},{"letter":"K","teams":["Belgium","Colombia","Ivory Coast","Sweden"]},{"letter":"L","teams":["Italy","Peru","Morocco","Paraguay"]}],"matches":[{"id":"M001","group":"A","matchday":1,"home":"Mexico","away":"Uruguay","home_goals":0,"away_goals":1,"status":"final","source":"sample"},{"id":"M002","group":"A","matchday":1,"home":"Mexico","away":"Nigeria","home_goals":3,"away_goals":0,"status":"final","source":"sample"},{"id":"M003","group":"A","matchday":2,"home":"Mexico","away":"Uzbekistan","home_goals":1,"away_goals":2,"status":"final","source":"sample"},{"id":"M004","group":"A","matchday":2,"home":"Uruguay","away":"Nigeria","home_goals":1,"away_goals":2,"status":"final","source":"sample"},{"id":"M005","group":"A","matchday":3,"home":"Uruguay","away":"Uzbekistan","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M006","group":"A","matchday":3,"home":"Nigeria","away":"Uzbekistan","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M007","group":"B","matchday":1,"home":"Canada","away":"Croatia","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M008","group":"B","matchday":1,"home":"Canada","away":"Senegal","home_goals":2,"away_goals":3,"status":"final","source":"sample"},{"id":"M009","group":"B","matchday":2,"home":"Canada","away":"Panama","home_goals":0,"away_goals":3,"status":"final","source":"sample"},{"id":"M010","group":"B","matchday":2,"home":"Croatia","away":"Senegal","home_goals":3,"away_goals":3,"status":"final","source":"sample"},{"id":"M011","group":"B","matchday":3,"home":"Croatia","away":"Panama","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M012","group":"B","matchday":3,"home":"Senegal","away":"Panama","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M013","group":"C","matchday":1,"home":"Argentina","away":"Denmark","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M014","group":"C","matchday":1,"home":"Argentina","away":"Iran","home_goals":0,"away_goals":1,"status":"final","source":"sample"},{"id":"M015","group":"C","matchday":2,"home":"Argentina","away":"Costa Rica","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M016","group":"C","matchday":2,"home":"Denmark","away":"Iran","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M017","group":"C","matchday":3,"home":"Denmark","away":"Costa Rica","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M018","group":"C","matchday":3,"home":"Iran","away":"Costa Rica","home_goals":1,"away_goals":4,"status":"final","source":"sample"},{"id":"M019","group":"D","matchday":1,"home":"United States","away":"Netherlands","home_goals":1,"away_goals":3,"status":"final","source":"sample"},{"id":"M020","group":"D","matchday":1,"home":"United States","away":"Ghana","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M021","group":"D","matchday":2,"home":"United States","away":"Qatar","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M022","group":"D","matchday":2,"home":"Netherlands","away":"Ghana","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M023","group":"D","matchday":3,"home":"Netherlands","away":"Qatar","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M024","group":"D","matchday":3,"home":"Ghana","away":"Qatar","home_goals":0,"away_goals":1,"status":"final","source":"sample"},{"id":"M025","group":"E","matchday":1,"home":"Spain","away":"Serbia","home_goals":2,"away_goals":3,"status":"final","source":"sample"},{"id":"M026","group":"E","matchday":1,"home":"Spain","away":"Japan","home_goals":3,"away_goals":1,"status":"final","source":"sample"},{"id":"M027","group":"E","matchday":2,"home":"Spain","away":"New Zealand","home_goals":3,"away_goals":2,"status":"final","source":"sample"},{"id":"M028","group":"E","matchday":2,"home":"Serbia","away":"Japan","home_goals":2,"away_goals":2,"status":"final","source":"sample"},{"id":"M029","group":"E","matchday":3,"home":"Serbia","away":"New Zealand","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M030","group":"E","matchday":3,"home":"Japan","away":"New Zealand","home_goals":0,"away_goals":2,"status":"final","source":"sample"},{"id":"M031","group":"F","matchday":1,"home":"Brazil","away":"Switzerland","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M032","group":"F","matchday":1,"home":"Brazil","away":"Cameroon","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M033","group":"F","matchday":2,"home":"Brazil","away":"Jamaica","home_goals":1,"away_goals":2,"status":"final","source":"sample"},{"id":"M034","group":"F","matchday":2,"home":"Switzerland","away":"Cameroon","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M035","group":"F","matchday":3,"home":"Switzerland","away":"Jamaica","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M036","group":"F","matchday":3,"home":"Cameroon","away":"Jamaica","home_goals":4,"away_goals":2,"status":"final","source":"sample"},{"id":"M037","group":"G","matchday":1,"home":"France","away":"Austria","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M038","group":"G","matchday":1,"home":"France","away":"South Korea","home_goals":3,"away_goals":2,"status":"final","source":"sample"},{"id":"M039","group":"G","matchday":2,"home":"France","away":"Egypt","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M040","group":"G","matchday":2,"home":"Austria","away":"South Korea","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M041","group":"G","matchday":3,"home":"Austria","away":"Egypt","home_goals":3,"away_goals":1,"status":"final","source":"sample"},{"id":"M042","group":"G","matchday":3,"home":"South Korea","away":"Egypt","home_goals":1,"away_goals":1,"status":"final","source":"sample"},{"id":"M043","group":"H","matchday":1,"home":"Germany","away":"Poland","home_goals":4,"away_goals":2,"status":"final","source":"sample"},{"id":"M044","group":"H","matchday":1,"home":"Germany","away":"Australia","home_goals":0,"away_goals":2,"status":"final","source":"sample"},{"id":"M045","group":"H","matchday":2,"home":"Germany","away":"Iraq","home_goals":3,"away_goals":1,"status":"final","source":"sample"},{"id":"M046","group":"H","matchday":2,"home":"Poland","away":"Australia","home_goals":1,"away_goals":1,"status":"final","source":"sample"},{"id":"M047","group":"H","matchday":3,"home":"Poland","away":"Iraq","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M048","group":"H","matchday":3,"home":"Australia","away":"Iraq","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M049","group":"I","matchday":1,"home":"Portugal","away":"Ukraine","home_goals":0,"away_goals":3,"status":"final","source":"sample"},{"id":"M050","group":"I","matchday":1,"home":"Portugal","away":"Saudi Arabia","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M051","group":"I","matchday":2,"home":"Portugal","away":"Tunisia","home_goals":2,"away_goals":2,"status":"final","source":"sample"},{"id":"M052","group":"I","matchday":2,"home":"Ukraine","away":"Saudi Arabia","home_goals":4,"away_goals":1,"status":"final","source":"sample"},{"id":"M053","group":"I","matchday":3,"home":"Ukraine","away":"Tunisia","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M054","group":"I","matchday":3,"home":"Saudi Arabia","away":"Tunisia","home_goals":0,"away_goals":0,"status":"final","source":"sample"},{"id":"M055","group":"J","matchday":1,"home":"England","away":"Ecuador","home_goals":3,"away_goals":1,"status":"final","source":"sample"},{"id":"M056","group":"J","matchday":1,"home":"England","away":"Algeria","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M057","group":"J","matchday":2,"home":"England","away":"Norway","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M058","group":"J","matchday":2,"home":"Ecuador","away":"Algeria","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M059","group":"J","matchday":3,"home":"Ecuador","away":"Norway","home_goals":3,"away_goals":1,"status":"final","source":"sample"},{"id":"M060","group":"J","matchday":3,"home":"Algeria","away":"Norway","home_goals":2,"away_goals":0,"status":"final","source":"sample"},{"id":"M061","group":"K","matchday":1,"home":"Belgium","away":"Colombia","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M062","group":"K","matchday":1,"home":"Belgium","away":"Ivory Coast","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M063","group":"K","matchday":2,"home":"Belgium","away":"Sweden","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M064","group":"K","matchday":2,"home":"Colombia","away":"Ivory Coast","home_goals":4,"away_goals":1,"status":"final","source":"sample"},{"id":"M065","group":"K","matchday":3,"home":"Colombia","away":"Sweden","home_goals":2,"away_goals":1,"status":"final","source":"sample"},{"id":"M066","group":"K","matchday":3,"home":"Ivory Coast","away":"Sweden","home_goals":0,"away_goals":2,"status":"final","source":"sample"},{"id":"M067","group":"L","matchday":1,"home":"Italy","away":"Peru","home_goals":0,"away_goals":2,"status":"final","source":"sample"},{"id":"M068","group":"L","matchday":1,"home":"Italy","away":"Morocco","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M069","group":"L","matchday":2,"home":"Italy","away":"Paraguay","home_goals":3,"away_goals":1,"status":"final","source":"sample"},{"id":"M070","group":"L","matchday":2,"home":"Peru","away":"Morocco","home_goals":1,"away_goals":1,"status":"final","source":"sample"},{"id":"M071","group":"L","matchday":3,"home":"Peru","away":"Paraguay","home_goals":1,"away_goals":0,"status":"final","source":"sample"},{"id":"M072","group":"L","matchday":3,"home":"Morocco","away":"Paraguay","home_goals":1,"away_goals":1,"status":"final","source":"sample"}],"standings":{"A":[{"team":"Uruguay","P":3,"W":2,"D":0,"L":1,"GF":4,"GA":2,"GD":2,"Pts":6,"rank":1},{"team":"Nigeria","P":3,"W":2,"D":0,"L":1,"GF":3,"GA":4,"GD":-1,"Pts":6,"rank":2},{"team":"Mexico","P":3,"W":1,"D":0,"L":2,"GF":4,"GA":3,"GD":1,"Pts":3,"rank":3},{"team":"Uzbekistan","P":3,"W":1,"D":0,"L":2,"GF":2,"GA":4,"GD":-2,"Pts":3,"rank":4}],"B":[{"team":"Senegal","P":3,"W":2,"D":1,"L":0,"GF":8,"GA":6,"GD":2,"Pts":7,"rank":1},{"team":"Croatia","P":3,"W":1,"D":1,"L":1,"GF":6,"GA":6,"GD":0,"Pts":4,"rank":2},{"team":"Panama","P":3,"W":1,"D":0,"L":2,"GF":5,"GA":4,"GD":1,"Pts":3,"rank":3},{"team":"Canada","P":3,"W":1,"D":0,"L":2,"GF":4,"GA":7,"GD":-3,"Pts":3,"rank":4}],"C":[{"team":"Denmark","P":3,"W":2,"D":0,"L":1,"GF":5,"GA":4,"GD":1,"Pts":6,"rank":1},{"team":"Argentina","P":3,"W":2,"D":0,"L":1,"GF":4,"GA":3,"GD":1,"Pts":6,"rank":2},{"team":"Costa Rica","P":3,"W":1,"D":0,"L":2,"GF":6,"GA":5,"GD":1,"Pts":3,"rank":3},{"team":"Iran","P":3,"W":1,"D":0,"L":2,"GF":3,"GA":6,"GD":-3,"Pts":3,"rank":4}],"D":[{"team":"Netherlands","P":3,"W":3,"D":0,"L":0,"GF":7,"GA":2,"GD":5,"Pts":9,"rank":1},{"team":"United States","P":3,"W":2,"D":0,"L":1,"GF":3,"GA":3,"GD":0,"Pts":6,"rank":2},{"team":"Qatar","P":3,"W":1,"D":0,"L":2,"GF":2,"GA":3,"GD":-1,"Pts":3,"rank":3},{"team":"Ghana","P":3,"W":0,"D":0,"L":3,"GF":0,"GA":4,"GD":-4,"Pts":0,"rank":4}],"E":[{"team":"Serbia","P":3,"W":2,"D":1,"L":0,"GF":7,"GA":4,"GD":3,"Pts":7,"rank":1},{"team":"Spain","P":3,"W":2,"D":0,"L":1,"GF":8,"GA":6,"GD":2,"Pts":6,"rank":2},{"team":"New Zealand","P":3,"W":1,"D":0,"L":2,"GF":4,"GA":5,"GD":-1,"Pts":3,"rank":3},{"team":"Japan","P":3,"W":0,"D":1,"L":2,"GF":3,"GA":7,"GD":-4,"Pts":1,"rank":4}],"F":[{"team":"Switzerland","P":3,"W":2,"D":0,"L":1,"GF":5,"GA":4,"GD":1,"Pts":6,"rank":1},{"team":"Brazil","P":3,"W":2,"D":0,"L":1,"GF":4,"GA":3,"GD":1,"Pts":6,"rank":2},{"team":"Cameroon","P":3,"W":1,"D":0,"L":2,"GF":5,"GA":5,"GD":0,"Pts":3,"rank":3},{"team":"Jamaica","P":3,"W":1,"D":0,"L":2,"GF":5,"GA":7,"GD":-2,"Pts":3,"rank":4}],"G":[{"team":"France","P":3,"W":3,"D":0,"L":0,"GF":7,"GA":3,"GD":4,"Pts":9,"rank":1},{"team":"Austria","P":3,"W":2,"D":0,"L":1,"GF":5,"GA":3,"GD":2,"Pts":6,"rank":2},{"team":"South Korea","P":3,"W":0,"D":1,"L":2,"GF":3,"GA":5,"GD":-2,"Pts":1,"rank":3},{"team":"Egypt","P":3,"W":0,"D":1,"L":2,"GF":2,"GA":6,"GD":-4,"Pts":1,"rank":4}],"H":[{"team":"Australia","P":3,"W":2,"D":1,"L":0,"GF":5,"GA":1,"GD":4,"Pts":7,"rank":1},{"team":"Germany","P":3,"W":2,"D":0,"L":1,"GF":7,"GA":5,"GD":2,"Pts":6,"rank":2},{"team":"Poland","P":3,"W":1,"D":1,"L":1,"GF":5,"GA":6,"GD":-1,"Pts":4,"rank":3},{"team":"Iraq","P":3,"W":0,"D":0,"L":3,"GF":2,"GA":7,"GD":-5,"Pts":0,"rank":4}],"I":[{"team":"Ukraine","P":3,"W":3,"D":0,"L":0,"GF":9,"GA":1,"GD":8,"Pts":9,"rank":1},{"team":"Portugal","P":3,"W":1,"D":1,"L":1,"GF":4,"GA":5,"GD":-1,"Pts":4,"rank":2},{"team":"Tunisia","P":3,"W":0,"D":2,"L":1,"GF":2,"GA":4,"GD":-2,"Pts":2,"rank":3},{"team":"Saudi Arabia","P":3,"W":0,"D":1,"L":2,"GF":1,"GA":6,"GD":-5,"Pts":1,"rank":4}],"J":[{"team":"England","P":3,"W":3,"D":0,"L":0,"GF":6,"GA":2,"GD":4,"Pts":9,"rank":1},{"team":"Ecuador","P":3,"W":2,"D":0,"L":1,"GF":5,"GA":4,"GD":1,"Pts":6,"rank":2},{"team":"Algeria","P":3,"W":1,"D":0,"L":2,"GF":2,"GA":2,"GD":0,"Pts":3,"rank":3},{"team":"Norway","P":3,"W":0,"D":0,"L":3,"GF":2,"GA":7,"GD":-5,"Pts":0,"rank":4}],"K":[{"team":"Belgium","P":3,"W":3,"D":0,"L":0,"GF":4,"GA":1,"GD":3,"Pts":9,"rank":1},{"team":"Colombia","P":3,"W":2,"D":0,"L":1,"GF":7,"GA":4,"GD":3,"Pts":6,"rank":2},{"team":"Sweden","P":3,"W":1,"D":0,"L":2,"GF":3,"GA":3,"GD":0,"Pts":3,"rank":3},{"team":"Ivory Coast","P":3,"W":0,"D":0,"L":3,"GF":1,"GA":7,"GD":-6,"Pts":0,"rank":4}],"L":[{"team":"Peru","P":3,"W":2,"D":1,"L":0,"GF":4,"GA":1,"GD":3,"Pts":7,"rank":1},{"team":"Italy","P":3,"W":2,"D":0,"L":1,"GF":4,"GA":3,"GD":1,"Pts":6,"rank":2},{"team":"Morocco","P":3,"W":0,"D":2,"L":1,"GF":2,"GA":3,"GD":-1,"Pts":2,"rank":3},{"team":"Paraguay","P":3,"W":0,"D":1,"L":2,"GF":2,"GA":5,"GD":-3,"Pts":1,"rank":4}]}}</script>
+
+<script>
+/* =====================================================================
+   World Cup 2026 fan-engagement prototype — vanilla JS, zero dependencies.
+   Layers: DATA (embedded snapshot) · STORE (fan state) · AI (grounded engine) · UI.
+   ===================================================================== */
+"use strict";
+
+/* -------------------- DATA -------------------- */
+const DATA = JSON.parse(document.getElementById('snapshot').textContent);
+const TEAMS = DATA.teams;
+const byName = Object.fromEntries(TEAMS.map(t => [t.name, t]));
+const GROUPS = DATA.groups.map(g => g.letter);
+const matchesFor = name => DATA.matches.filter(m => m.home===name || m.away===name);
+const standingRow = name => {
+  const g = byName[name].group;
+  return DATA.standings[g].find(r => r.team===name);
+};
+
+/* -------------------- STORE (fan profiles + support) -------------------- */
+const LS_KEY = "wc26_fan_state_v1";
+// Seed a modest illustrative baseline so charts aren't empty (clearly labelled sample).
+function seedBaseline(){
+  const base = {};
+  const seedList = {Brazil:52,Argentina:61,France:44,England:39,Mexico:47,"United States":41,
+    Morocco:33,Japan:28,Germany:36,Spain:31,Portugal:35,Netherlands:24,Croatia:19,Senegal:17,
+    Canada:22,"South Korea":21,Nigeria:20,Italy:26,Colombia:18,Uruguay:16};
+  TEAMS.forEach(t => base[t.name] = seedList[t.name] || (6 + (t.name.length % 7)));
+  return base;
+}
+let STATE = loadState();
+function loadState(){
+  const fresh = { profiles:[], support:seedBaseline(), _persist:true };
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const p = JSON.parse(raw); return {...fresh, ...p, _persist:true}; }
+  }catch(e){ fresh._persist=false; } // sandboxed / disabled storage → in-memory only
+  return fresh;
+}
+function saveState(){
+  if(!STATE._persist) return;
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({profiles:STATE.profiles, support:STATE.support})); }
+  catch(e){ STATE._persist=false; }
+}
+function addProfile(p){
+  STATE.profiles.push({...p, ts:Date.now()});
+  STATE.support[p.team] = (STATE.support[p.team]||0) + 1;
+  saveState();
+}
+const totalSupport = () => Object.values(STATE.support).reduce((a,b)=>a+b,0);
+const topSupported = (n=10) => Object.entries(STATE.support)
+  .sort((a,b)=>b[1]-a[1]).slice(0,n).map(([team,count])=>({team,count}));
+
+/* -------------------- AI ENGINE (grounded, rule-based mock) --------------------
+   Every sentence is composed only from snapshot fields. Nothing is invented.
+   If an API key + endpoint are configured, aiTeamSummary() will try a hosted LLM
+   and fall back to this engine on any failure — see README for wiring. --------- */
+const AI = {
+  hasKey(){ return !!(window.__WC_LLM__ && window.__WC_LLM__.apiKey && window.__WC_LLM__.endpoint); },
+  modeLabel(){ return this.hasKey() ? "Hosted LLM (grounded)" : "Local grounded engine"; },
+
+  form(name){ // last-two sample results as a compact form string
+    const ms = matchesFor(name).slice(-3);
+    return ms.map(m=>{
+      const gf = m.home===name?m.home_goals:m.away_goals;
+      const ga = m.home===name?m.away_goals:m.home_goals;
+      return gf>ga?"W":gf<ga?"L":"D";
+    }).join("");
+  },
+  momentum(name){
+    const r = standingRow(name);
+    if(!r) return "no sample matches recorded yet";
+    if(r.W>=2) return "strong momentum in this sample group stage";
+    if(r.L>=2) return "under pressure after tough sample results";
+    if(r.GD>0) return "quietly building form";
+    return "still finding rhythm";
+  },
+  teamSummary(name){
+    const t = byName[name], r = standingRow(name);
+    const bf = t.best_finish;
+    const rankTxt = r ? `${ordinal(r.rank)} of 4` : "unseeded";
+    const stat = r
+      ? `Across the sample group stage they've played ${r.P} (${r.W}W-${r.D}D-${r.L}L), scored ${r.GF} and conceded ${r.GA} for ${r.Pts} points — currently ${rankTxt} in Group ${t.group}.`
+      : `They sit in Group ${t.group}.`;
+    const hist = bf.source==="historical"
+      ? `Their best World Cup finish on record is ${bf.text.toLowerCase()}.`
+      : `Illustrative best-finish note (sample): ${bf.text.toLowerCase()}.`;
+    return {
+      text: `${t.flag} ${t.name} are ${this.momentum(name)}. ${stat} ${hist} ${t.history}`,
+      source: `Grounded in: Group ${t.group} standings & fixtures (sample) · best_finish (${bf.source}) · public-domain history.`,
+      form: this.form(name),
+    };
+  },
+  storyline(name){
+    const r = standingRow(name);
+    if(!r) return "Awaiting sample fixtures for this side.";
+    const g = byName[name].group;
+    const scorers = DATA.standings[g].slice().sort((a,b)=>b.GF-a.GF);
+    if(scorers[0].team===name && r.GF>0) return `Group ${g}'s sharpest attack in the sample data with ${r.GF} goals.`;
+    if(r.L===0 && r.P>0) return `Unbeaten so far in the Group ${g} sample fixtures.`;
+    if(r.rank<=2) return `Sitting in a qualifying place (${ordinal(r.rank)}) in the Group ${g} sample table.`;
+    return `Needs a result to climb the Group ${g} sample table (currently ${ordinal(r.rank)}).`;
+  },
+  recommend(profile){
+    const t = byName[profile.team];
+    const g = t.group;
+    // 1) explore group rivals
+    const rivals = DATA.groups.find(x=>x.letter===g).teams.filter(n=>n!==t.name);
+    // 2) a similar-pedigree side from another group
+    const tier = n => { const s=byName[n].best_finish.text.toLowerCase();
+      return s.includes("champ")?3:(s.includes("runners")||s.includes("third")||s.includes("fourth"))?2:s.includes("quarter")?1:0; };
+    const myTier = tier(t.name);
+    const kindred = TEAMS.filter(x=>x.group!==g && tier(x.name)===myTier)
+      .map(x=>x.name).sort(()=> .5-((profile.team.length)%2))[0];
+    // 3) matches to watch = supported team's sample fixtures
+    const fx = matchesFor(t.name).map(m=>({
+      label:`${byName[m.home].flag} ${m.home} vs ${m.away} ${byName[m.away].flag}`,
+      score:`${m.home_goals}–${m.away_goals}`, group:m.group
+    }));
+    return {
+      exploreGroup: rivals,
+      kindred,
+      matches: fx,
+      storyline: this.storyline(t.name),
+      styleNote: profile.style ? `Because you like a ${profile.style.toLowerCase()} style, ${t.name}'s Group ${g} clashes are a good watch.` : null,
+    };
+  },
+  // Optional hosted-LLM path (opt-in). Never blocks; falls back to local engine.
+  async teamSummaryLLM(name){
+    if(!this.hasKey()) return this.teamSummary(name);
+    try{
+      const t = byName[name], r = standingRow(name);
+      const facts = JSON.stringify({team:t.name, group:t.group, standing:r, best_finish:t.best_finish, note:"sample data"});
+      const res = await fetch(window.__WC_LLM__.endpoint, {
+        method:"POST",
+        headers:{"content-type":"application/json","authorization":`Bearer ${window.__WC_LLM__.apiKey}`},
+        body: JSON.stringify({
+          model: window.__WC_LLM__.model || "gpt-4o-mini",
+          messages:[
+            {role:"system",content:"You are a football analyst. Use ONLY the JSON facts provided. Never invent scores, players or history. If a field is missing, say so. Note when data is sample."},
+            {role:"user",content:"Write a 2-3 sentence grounded summary. FACTS: "+facts}
+          ]
+        })
+      });
+      if(!res.ok) throw new Error("LLM "+res.status);
+      const j = await res.json();
+      const text = j.choices?.[0]?.message?.content || j.content?.[0]?.text;
+      if(!text) throw new Error("empty");
+      return {text, source:"Hosted LLM, constrained to snapshot facts.", form:this.form(name)};
+    }catch(e){
+      const fb = this.teamSummary(name);
+      fb.source += "  (Hosted LLM unavailable — fell back to local engine.)";
+      return fb;
+    }
+  }
+};
+function ordinal(n){ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+
+/* -------------------- ROUTER / SHELL -------------------- */
+const TABS = [
+  ["overview","01","Overview"],
+  ["teams","02","Teams"],
+  ["groups","03","Groups & Results"],
+  ["profile","04","Fan Profile"],
+  ["support","05","Support"],
+];
+let route = "overview";
+function setRoute(r){ route=r; renderNav(); renderView(); window.scrollTo({top:0,behavior:"instant"}); }
+
+function renderNav(){
+  const nav = document.getElementById("nav");
+  nav.innerHTML = TABS.map(([id,n,label])=>
+    `<button class="tab" role="tab" aria-selected="${route===id}" data-r="${id}">
+       <span class="n">${n}</span>${label}</button>`).join("");
+  nav.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setRoute(b.dataset.r));
+}
+function renderTicker(){
+  const items = DATA.matches.slice(0,14).map(m=>
+    `<span class="t"><span class="lbl">SAMPLE</span> ${byName[m.home].flag} <b>${m.home}</b> <span class="s">${m.home_goals}–${m.away_goals}</span> <b>${m.away}</b> ${byName[m.away].flag} · Grp ${m.group}</span>`
+  );
+  document.getElementById("ticker").innerHTML = (items.join("") + items.join(""));
+}
+
+/* -------------------- VIEWS -------------------- */
+function renderView(){
+  const el = document.getElementById("view");
+  el.innerHTML = ({overview:viewOverview,teams:viewTeams,groups:viewGroups,profile:viewProfile,support:viewSupport}[route])();
+  bindView();
+}
+
+function noticeSample(extra=""){
+  return `<div class="notice">⚑ <div><b>Grounding notice.</b> Group draw, fixtures and standings on this screen are <b>sample</b> data for an independent prototype — not real 2026 results and not FIFA-affiliated. ${extra}</div></div>`;
+}
+
+function viewOverview(){
+  const m = DATA.meta;
+  return `
+  <section style="margin:8px 0 26px">
+    <div class="eyebrow">Fan engagement prototype · ${m.hosts.join(" · ")}</div>
+    <h1 class="big">Follow every<br>team. Pick<br>your side.</h1>
+    <p class="lead">Explore all ${m.team_count} teams and ${m.group_count} groups, read grounded AI briefings, build a fan identity, and watch support momentum shift in real time. A compact, offline-ready MVP.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="btn" data-go="teams">Explore teams →</button>
+      <button class="btn gold" data-go="profile">Create fan profile</button>
+      <button class="btn ghost" data-go="groups">Groups &amp; results</button>
+    </div>
+  </section>
+  ${noticeSample()}
+  <div class="stats" style="margin:20px 0">
+    <div class="stat"><div class="k turf">${m.team_count}</div><div class="l">Teams</div></div>
+    <div class="stat"><div class="k">${m.group_count}</div><div class="l">Groups A–L</div></div>
+    <div class="stat"><div class="k gold">${m.total_matches_real}</div><div class="l">Matches (full tournament)</div></div>
+    <div class="stat"><div class="k turf">${totalSupport().toLocaleString()}</div><div class="l">Fans backing a team</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1.2fr .8fr">
+    <div class="card pad">
+      <h2 class="sec">Top supported</h2>
+      <p class="lead" style="margin-bottom:14px">Live counts from local fan profiles on a seeded sample baseline.</p>
+      ${barsHTML(topSupported(6))}
+      <button class="btn ghost" style="margin-top:14px" data-go="support">Full support analytics →</button>
+    </div>
+    <div class="card pad">
+      <h2 class="sec">How it works</h2>
+      <div class="rec" style="margin-top:12px">
+        <div class="item"><div class="ic">🧭</div><div><div class="h">Explore</div><div class="lead">Browse teams, group tables and sample results.</div></div></div>
+        <div class="item"><div class="ic">🪪</div><div><div class="h">Identify</div><div class="lead">Build a lightweight fan card and pick one team.</div></div></div>
+        <div class="item"><div class="ic">🤖</div><div><div class="h">Get briefed</div><div class="lead">Grounded AI summaries &amp; picks — no key required.</div></div></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function teamCard(t){
+  const r = standingRow(t.name);
+  const sup = STATE.support[t.name]||0;
+  const max = Math.max(...Object.values(STATE.support));
+  return `<button class="team" data-team="${enc(t.name)}">
+    <span class="grp">${t.group}</span>
+    <div class="flag">${t.flag}</div>
+    <div class="nm">${t.name}</div>
+    <div class="meta">${t.confederation} · ${t.best_finish.source==="historical"?t.best_finish.text:"sample finish"}</div>
+    <div class="sup">🔥 ${sup} fans <span class="meter"><span style="width:${Math.round(100*sup/max)}%"></span></span></div>
+  </button>`;
+}
+function viewTeams(){
+  const confs = [...new Set(TEAMS.map(t=>t.confederation))].sort();
+  return `
+  <div class="eyebrow">Team &amp; country explorer</div>
+  <h2 class="sec">All ${TEAMS.length} teams</h2>
+  <div class="filters">
+    <input class="input" id="q" placeholder="Search team…" style="flex:1;min-width:180px" aria-label="Search teams">
+    <select id="fg" aria-label="Filter by group"><option value="">All groups</option>${GROUPS.map(g=>`<option>${g}</option>`).join("")}</select>
+    <select id="fc" aria-label="Filter by confederation"><option value="">All confederations</option>${confs.map(c=>`<option>${c}</option>`).join("")}</select>
+    <select id="fs" aria-label="Sort"><option value="name">A–Z</option><option value="support">Most supported</option><option value="group">By group</option></select>
+  </div>
+  <div class="teamgrid" id="tg">${TEAMS.map(teamCard).join("")}</div>`;
+}
+function applyTeamFilters(){
+  const q=(document.getElementById("q").value||"").toLowerCase();
+  const fg=document.getElementById("fg").value, fc=document.getElementById("fc").value, fs=document.getElementById("fs").value;
+  let list = TEAMS.filter(t=> t.name.toLowerCase().includes(q)
+    && (!fg||t.group===fg) && (!fc||t.confederation===fc));
+  if(fs==="support") list.sort((a,b)=>(STATE.support[b.name]||0)-(STATE.support[a.name]||0));
+  else if(fs==="group") list.sort((a,b)=>a.group.localeCompare(b.group)||a.name.localeCompare(b.name));
+  else list.sort((a,b)=>a.name.localeCompare(b.name));
+  const tg=document.getElementById("tg");
+  tg.innerHTML = list.length?list.map(teamCard).join(""):`<div class="lead">No teams match that filter.</div>`;
+  tg.querySelectorAll(".team").forEach(b=>b.onclick=()=>openTeam(dec(b.dataset.team)));
+}
+
+function viewGroups(){
+  return `
+  <div class="eyebrow">Group &amp; results dashboard</div>
+  <h2 class="sec">Groups A–L</h2>
+  ${noticeSample("Green rows mark the sample qualifying places (top two).")}
+  <div class="groups" style="margin-top:16px">
+    ${GROUPS.map(groupCard).join("")}
+  </div>`;
+}
+function groupCard(g){
+  const rows = DATA.standings[g];
+  const ms = DATA.matches.filter(m=>m.group===g);
+  return `<div class="card pad">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span class="rankdot" style="background:var(--turf-dim);color:#eafff2">${g}</span>
+      <h2 class="sec" style="font-size:20px;margin:0">Group ${g}</h2>
+      <span class="pill sample" style="margin-left:auto">sample</span>
+    </div>
+    <table><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr class="${r.rank<=2?'adv':''}">
+      <td><span class="rankdot">${r.rank}</span>${byName[r.team].flag} <a href="#" data-team="${enc(r.team)}" class="tlink">${r.team}</a></td>
+      <td class="mono-num">${r.P}</td><td class="mono-num">${r.W}</td><td class="mono-num">${r.D}</td><td class="mono-num">${r.L}</td>
+      <td class="mono-num ${r.GD>0?'q':''}">${r.GD>0?'+':''}${r.GD}</td><td class="mono-num"><b>${r.Pts}</b></td></tr>`).join("")}</tbody></table>
+    <div style="margin-top:12px;font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;font-size:11px;color:var(--muted2)">Sample results</div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+      ${ms.map(m=>`<div style="display:flex;gap:8px;font-size:13px;color:var(--muted)">
+        <span style="flex:1;text-align:right">${m.home} ${byName[m.home].flag}</span>
+        <span class="mono-num" style="color:var(--gold);min-width:44px;text-align:center">${m.home_goals}–${m.away_goals}</span>
+        <span style="flex:1">${byName[m.away].flag} ${m.away}</span></div>`).join("")}
+    </div>
+  </div>`;
+}
+
+function viewProfile(){
+  const teamsOpts = TEAMS.slice().sort((a,b)=>a.name.localeCompare(b.name))
+    .map(t=>`<option value="${enc(t.name)}">${t.flag} ${t.name} (Grp ${t.group})</option>`).join("");
+  const mine = STATE.profiles.slice(-1)[0];
+  return `
+  <div class="eyebrow">Fan profile &amp; team support</div>
+  <h2 class="sec">Build your fan card</h2>
+  <p class="lead">No sign-up. Pick one team to back — it personalises your AI briefing and bumps that team's support count.</p>
+  <div class="grid" style="grid-template-columns:1.1fr .9fr;margin-top:16px">
+    <div class="card pad">
+      <div class="form">
+        <div class="field"><label>Display name</label><input class="input" id="p_name" placeholder="e.g. Priya from Pune"></div>
+        <div class="field"><label>Country / region</label><input class="input" id="p_region" placeholder="e.g. India"></div>
+        <div class="field full"><label>Team you're backing</label><select id="p_team">${teamsOpts}</select></div>
+        <div class="field full"><label>Why this team?</label><textarea id="p_reason" placeholder="A story, a player, family roots…"></textarea></div>
+        <div class="field"><label>Favourite player (optional)</label><input class="input" id="p_player" placeholder="Optional"></div>
+        <div class="field"><label>Preferred style</label>
+          <select id="p_style"><option value="">No preference</option><option>Attacking</option><option>Defensive</option><option>Possession</option><option>Counter-attacking</option><option>Underdog spirit</option></select></div>
+        <div class="field full"><button class="btn gold" id="p_save">Save fan card &amp; get my briefing →</button></div>
+      </div>
+    </div>
+    <div id="idwrap">${mine?idCard(mine):idEmpty()}</div>
+  </div>
+  <div id="airec" style="margin-top:16px">${mine?aiRecHTML(mine):""}</div>`;
+}
+function idEmpty(){
+  return `<div class="card pad" style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:var(--muted)">
+    <div style="font-size:40px">🪪</div><div class="lead" style="margin-top:8px">Your fan card appears here once you save. It drives your personalised AI picks.</div></div>`;
+}
+function idCard(p){
+  const t=byName[p.team];
+  return `<div class="idcard">
+    <div class="pill turf">Fan card</div>
+    <div class="who" style="margin-top:10px">${esc(p.name||"Anonymous fan")}</div>
+    <div class="lead" style="color:#cfe9dd">${esc(p.region||"—")}</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:14px">
+      <div style="font-size:44px">${t.flag}</div>
+      <div><div style="font-family:var(--cond);font-weight:700;font-size:20px">${t.name}</div>
+      <div class="lead" style="color:#bfe3d4">Group ${t.group} · ${t.confederation}</div></div>
+    </div>
+    ${p.reason?`<p class="lead" style="color:#dcefe7;margin-top:12px">“${esc(p.reason)}”</p>`:""}
+    <div class="row">
+      ${p.player?`<span class="pill gold">★ ${esc(p.player)}</span>`:""}
+      ${p.style?`<span class="pill">${esc(p.style)}</span>`:""}
+      <span class="pill turf">🔥 ${STATE.support[p.team]||0} backing</span>
+    </div>
+  </div>`;
+}
+function aiRecHTML(p){
+  const rec = AI.recommend(p);
+  const sum = AI.teamSummary(p.team);
+  return `<div class="ai">
+    <div class="ai-head">🤖 <b style="font-family:var(--cond);text-transform:uppercase;letter-spacing:1px">Your AI briefing</b>
+      <span class="badge">${AI.modeLabel()}</span></div>
+    <div class="ai-body">
+      <p>${sum.text}</p>
+      <div class="rec">
+        <div class="item"><div class="ic">🧭</div><div><div class="h">Explore next in Group ${byName[p.team].group}</div>
+          <div class="lead">${rec.exploreGroup.map(n=>`${byName[n].flag} <a href="#" class="tlink" data-team="${enc(n)}">${n}</a>`).join(" · ")}</div></div></div>
+        <div class="item"><div class="ic">🎟️</div><div><div class="h">Matches to watch (sample)</div>
+          <div class="lead">${rec.matches.map(m=>`${m.label} <span style="color:var(--gold)">${m.score}</span>`).join("<br>")}</div></div></div>
+        <div class="item"><div class="ic">🧩</div><div><div class="h">Storyline</div><div class="lead">${rec.storyline}${rec.styleNote?"<br>"+rec.styleNote:""}</div></div></div>
+        <div class="item"><div class="ic">🔗</div><div><div class="h">Similar pedigree to explore</div>
+          <div class="lead">${byName[rec.kindred].flag} <a href="#" class="tlink" data-team="${enc(rec.kindred)}">${rec.kindred}</a> — comparable best-finish tier.</div></div></div>
+      </div>
+      <div class="src">${sum.source} Recommendations derived from your supported team &amp; profile only.</div>
+    </div>
+  </div>`;
+}
+
+function viewSupport(){
+  return `
+  <div class="eyebrow">Fan support analytics</div>
+  <h2 class="sec">Who's gaining momentum</h2>
+  <p class="lead">Support counts update whenever a fan card is created. Baseline is a seeded sample; your picks add on top.</p>
+  <div class="stats" style="margin:16px 0">
+    <div class="stat"><div class="k turf">${STATE.profiles.length}</div><div class="l">Fan cards created (this device)</div></div>
+    <div class="stat"><div class="k gold">${totalSupport().toLocaleString()}</div><div class="l">Total support</div></div>
+    <div class="stat"><div class="k">${topSupported(1)[0].team}</div><div class="l" style="text-transform:none">Most backed team</div></div>
+    <div class="stat"><div class="k turf">${STATE._persist?"On":"Session"}</div><div class="l">Local persistence</div></div>
+  </div>
+  <div class="card pad">
+    <h2 class="sec" style="font-size:20px">Top 10 supported teams</h2>
+    <div style="margin-top:14px">${barsHTML(topSupported(10),true)}</div>
+  </div>`;
+}
+function barsHTML(list,flags){
+  const max = Math.max(...list.map(x=>x.count),1);
+  return `<div class="bars">${list.map(x=>`
+    <div class="bar-row">
+      <div class="nm">${flags?byName[x.team].flag+" ":""}<a href="#" class="tlink" data-team="${enc(x.team)}">${x.team}</a></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(100*x.count/max)}%"></div></div>
+      <div class="v mono-num">${x.count}</div>
+    </div>`).join("")}</div>`;
+}
+
+/* -------------------- TEAM MODAL -------------------- */
+function openTeam(name){
+  const t=byName[name], r=standingRow(name), sum=AI.teamSummary(name);
+  const bf=t.best_finish;
+  const wrap=document.createElement("div");
+  wrap.className="overlay"; wrap.id="ov";
+  wrap.innerHTML=`<div class="modal" role="dialog" aria-label="${t.name} profile">
+    <div class="top">
+      <div class="fl">${t.flag}</div>
+      <div>
+        <div class="eyebrow">Group ${t.group} · ${t.confederation}</div>
+        <h2 class="sec" style="font-size:30px">${t.name}</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <span class="pill ${bf.source==='historical'?'gold':'sample'}">${bf.source==='historical'?'Best finish':'Sample finish'}: ${bf.text}</span>
+          <span class="pill turf">🔥 ${STATE.support[name]||0} fans</span>
+          <span class="pill">Form ${sum.form||'—'}</span>
+        </div>
+      </div>
+      <button class="x" id="closex" aria-label="Close">✕</button>
+    </div>
+    <div class="pad">
+      <div class="statline">
+        <div class="b"><div class="n mono-num">${r?r.P:'–'}</div><div class="t">Played</div></div>
+        <div class="b"><div class="n mono-num q">${r?r.W:'–'}</div><div class="t">Won</div></div>
+        <div class="b"><div class="n mono-num">${r?r.D:'–'}</div><div class="t">Drawn</div></div>
+        <div class="b"><div class="n mono-num" style="color:var(--coral)">${r?r.L:'–'}</div><div class="t">Lost</div></div>
+        <div class="b"><div class="n mono-num">${r?r.GF:'–'}</div><div class="t">GF</div></div>
+        <div class="b"><div class="n mono-num">${r?r.GA:'–'}</div><div class="t">GA</div></div>
+        <div class="b"><div class="n mono-num ${r&&r.GD>0?'q':''}">${r?(r.GD>0?'+':'')+r.GD:'–'}</div><div class="t">GD</div></div>
+        <div class="b"><div class="n mono-num" style="color:var(--gold)">${r?r.Pts:'–'}</div><div class="t">Points</div></div>
+      </div>
+      <div class="ai" style="margin-top:6px">
+        <div class="ai-head">🤖 <b style="font-family:var(--cond);text-transform:uppercase;letter-spacing:1px">AI team briefing</b><span class="badge">${AI.modeLabel()}</span></div>
+        <div class="ai-body"><p>${sum.text}</p>
+          <p class="lead"><b style="color:var(--turf)">Storyline —</b> ${AI.storyline(name)}</p>
+          <div class="src">${sum.source}</div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="btn gold" id="backteam">Back ${t.name} →</button>
+        <button class="btn ghost" id="closeb">Close</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(wrap);
+  const close=()=>wrap.remove();
+  wrap.onclick=e=>{ if(e.target===wrap) close(); };
+  wrap.querySelector("#closex").onclick=close;
+  wrap.querySelector("#closeb").onclick=close;
+  wrap.querySelector("#backteam").onclick=()=>{ close(); setRoute("profile");
+    setTimeout(()=>{ const sel=document.getElementById("p_team"); if(sel){ sel.value=enc(name); } },0); };
+  document.addEventListener("keydown",function esc(e){ if(e.key==="Escape"){close();document.removeEventListener("keydown",esc);} });
+  wrap.querySelector("#closex").focus();
+}
+
+/* -------------------- BINDINGS -------------------- */
+function bindView(){
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>setRoute(b.dataset.go));
+  document.querySelectorAll(".team").forEach(b=>b.onclick=()=>openTeam(dec(b.dataset.team)));
+  document.querySelectorAll(".tlink").forEach(a=>a.onclick=e=>{e.preventDefault();openTeam(dec(a.dataset.team));});
+  if(route==="teams"){
+    ["q","fg","fc","fs"].forEach(id=>{ const el=document.getElementById(id); el.oninput=applyTeamFilters; el.onchange=applyTeamFilters; });
+  }
+  if(route==="profile"){
+    const btn=document.getElementById("p_save");
+    if(btn) btn.onclick=()=>{
+      const p={
+        name:document.getElementById("p_name").value.trim(),
+        region:document.getElementById("p_region").value.trim(),
+        team:dec(document.getElementById("p_team").value),
+        reason:document.getElementById("p_reason").value.trim(),
+        player:document.getElementById("p_player").value.trim(),
+        style:document.getElementById("p_style").value,
+      };
+      addProfile(p);
+      document.getElementById("idwrap").innerHTML=idCard(p);
+      document.getElementById("airec").innerHTML=aiRecHTML(p);
+      bindView();
+      const ai=document.getElementById("airec"); if(ai&&ai.scrollIntoView) ai.scrollIntoView({behavior:"smooth",block:"start"});
+    };
+  }
+}
+
+/* -------------------- utils -------------------- */
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function enc(s){return encodeURIComponent(s);}
+function dec(s){return decodeURIComponent(s);}
+
+/* -------------------- init -------------------- */
+renderNav(); renderTicker(); renderView();
+</script>
+</body>
+</html>
