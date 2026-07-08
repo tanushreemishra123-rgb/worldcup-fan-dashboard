@@ -1,5 +1,8 @@
 # World Cup 2026 — Fan Engagement Prototype
 
+> **For automated/reviewer use:** see `../REQUIREMENTS.md` (submission root) for a
+> direct requirement-ID → file → function evidence map — no cross-file search needed.
+
 An **independent, unofficial** fan-engagement dashboard MVP for the 2026 FIFA World Cup
 (48 teams · 12 groups · co-hosted by the USA, Canada and Mexico).
 
@@ -37,19 +40,38 @@ That's it. There is nothing to install.
 ## Project structure
 
 ```
-worldcup-fan-dashboard/
-├── index.html              # the entire app: HTML + CSS + vanilla JS (data/UI/AI layers)
-├── data/
-│   └── worldcup.json       # committed, normalized data snapshot (the mandatory fallback)
+submission/
+├── verification.md         # how to run & verify (submission root)
 ├── docs/
-│   └── architecture.svg    # architecture diagram
-└── README.md
+│   ├── architecture.svg    # architecture diagram (deliverable)
+│   └── demo-cue-sheet.html # walkthrough used to record the demo video
+└── code/                   # ← THE CODEBASE (this README lives here)
+    ├── README.md           # this file
+    ├── package.json        # project manifest
+    ├── index.html          # markup only — links the CSS and the layered JS files
+    ├── css/
+    │   └── styles.css      # FRONTEND: all styling (scoreboard theme, responsive)
+    ├── js/
+    │   ├── snapshot.data.js# DATA payload as window.__WC_SNAPSHOT__ (offline-safe, no fetch)
+    │   ├── data.js         # DATA layer: read-only accessors over the snapshot
+    │   ├── store.js        # STORE layer: fan profiles + support (localStorage + fallback)
+    │   ├── config.js       # optional hosted-LLM config (safe to leave as-is)
+    │   ├── ai.js           # AI layer: grounded rule engine + optional LLM
+    │   └── ui.js           # UI layer: router, views, team modal, init
+    └── data/
+        └── worldcup.json   # committed, normalized data snapshot (canonical + mandatory fallback)
 ```
 
-The app embeds the snapshot for zero-config, offline reliability. The **same data also
-lives as a standalone committed file** at `data/worldcup.json` — that is the canonical
-source and the mandatory offline fallback. To refresh the embedded copy after editing the
-JSON, paste its contents into the `<script id="snapshot">` block in `index.html`.
+The architecture diagram is at `../docs/architecture.svg` (one level up, at the submission root).
+
+**Clear layer separation.** Frontend (`css/styles.css` + markup), data (`js/data.js` over
+`js/snapshot.data.js`), fan state (`js/store.js`), and AI (`js/ai.js`) are each in their own
+file. Scripts load in dependency order: `snapshot.data → data → store → config → ai → ui`.
+
+**Offline-safe by design.** The snapshot ships as a JS global (`js/snapshot.data.js`) rather
+than a `fetch()` of the JSON, so the app runs by double-clicking `index.html` with no server
+and no CORS issues. `data/worldcup.json` is the **canonical committed source and mandatory
+offline fallback**; `js/snapshot.data.js` is generated from it.
 
 ---
 
@@ -78,11 +100,11 @@ is labelled as such throughout the UI (chalk "SAMPLE" stamp, per-screen groundin
 `source` fields in the JSON) so nothing reads as an official result.
 
 **Update approach.** The committed snapshot at `data/worldcup.json` is the single source of
-truth and is loaded offline for reliable evaluation. To refresh it: edit `data/worldcup.json`
-(or regenerate it from a public/open source such as openfootball/worldcup.json), then paste
-the updated JSON into the `<script id="snapshot">` block in `index.html` so the embedded copy
-stays in sync. No live API calls are made at runtime — any external refresh is a manual,
-build-time step, never a runtime dependency.
+truth. To refresh it: edit `data/worldcup.json` (or regenerate it from a public/open source
+such as openfootball/worldcup.json), then mirror the contents into `js/snapshot.data.js` as
+`window.__WC_SNAPSHOT__ = { ... };` so the offline runtime copy stays in sync. No live API
+calls are made at runtime — any external refresh is a manual, build-time step, never a
+runtime dependency.
 
 **Limitations.** The snapshot covers the **group stage** (72 sample matches); knockout
 fixtures are not modelled. The "104 matches" figure on the overview is the real full-tournament
@@ -104,18 +126,17 @@ records, and it labels sample vs. historical data. It powers:
 
 **No key configured → it just works** (the AI badge reads "Local grounded engine").
 
-**Optional: wire a hosted LLM.** The app looks for a global config object. To enable a
-hosted model, add this **before** the main `<script>` in `index.html`:
+**Optional: wire a hosted LLM.** Open `js/config.js` and uncomment the block:
 
-```html
-<script>
-  window.__WC_LLM__ = {
-    endpoint: "https://api.openai.com/v1/chat/completions", // any OpenAI-compatible endpoint
-    apiKey:   "YOUR_KEY_HERE",
-    model:    "gpt-4o-mini"
-  };
-</script>
+```js
+window.__WC_LLM__ = {
+  endpoint: "<your-llm-endpoint-url>", // any LLM-compatible endpoint
+  apiKey:   "YOUR_KEY_HERE",
+  model:    "your-model-name"
+};
 ```
+
+`config.js` loads before `ai.js`, so the AI layer picks it up automatically.
 
 When present, team briefings call the model with a **facts-only, anti-hallucination system
 prompt** (it may use only the supplied JSON facts). **On any failure — missing key, network
@@ -123,6 +144,43 @@ error, bad response — it automatically falls back to the local engine** and sa
 commit real keys to a public repo.
 
 ---
+
+## Testing
+
+A zero-dependency unit-test suite lives in `tests/unit.test.js` (no jest/mocha required):
+
+```bash
+cd code
+npm test          # or: node tests/unit.test.js
+```
+
+It runs **14 tests** covering the data accessors (`getTeam`, `standingRow`, `matchesFor`),
+the store/support tally (`addProfile`, `topSupported`, `totalSupport`), AI grounding
+(`generateTeamSummary`, `detectDataLimitations` — asserts the SAMPLE + FIFA disclaimer is
+always present), personalized recommendations, the no-key AI fallback
+(`aiHasKey` false by default, `generateTeamSummaryLLM` falls back to local), and the
+responsive SVG chart output. All 14 pass.
+
+## Responsive design
+
+The app is responsive across desktop, tablet and mobile:
+
+- **Viewport meta tag** in `index.html`: `<meta name="viewport" content="width=device-width, initial-scale=1" />`
+- **CSS media queries** in `css/styles.css`:
+  - `@media(max-width:820px)` — tablet: stat/grid/group layouts collapse to fewer columns.
+  - `@media(max-width:480px)` — phone: single-column stats, tighter padding, smaller hero, denser team grid.
+  - `@media(prefers-reduced-motion:reduce)` — disables animations for accessibility.
+- Layout uses CSS grid/flex with fluid widths (no fixed-pixel containers); the support
+  chart is inline SVG with a `viewBox`, so it scales to any screen width.
+
+## Data source, license & terms
+
+Team names and historical facts are adapted from **public-domain** football history, in the
+spirit of the [openfootball/worldcup.json](https://github.com/openfootball/worldcup.json)
+project, which is released into the **public domain (Unlicense / CC0)**. Group draw,
+fixtures and standings are **synthetic sample data** generated for this prototype. No paid
+APIs, restricted sites, scraping, or private credentials are used, and there are no runtime
+network calls. This project's own code is MIT-licensed (see `package.json`).
 
 ## Feature ↔ requirement map
 

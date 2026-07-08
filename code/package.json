@@ -1,0 +1,39 @@
+{
+  "name": "worldcup-2026-fan-engagement-prototype",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Independent World Cup 2026 fan engagement prototype — grounded AI, offline-ready. Not affiliated with FIFA.",
+  "keywords": [
+    "world-cup",
+    "fan-engagement",
+    "dashboard",
+    "vanilla-js",
+    "grounded-ai",
+    "team-summary",
+    "recommendations",
+    "data-visualization",
+    "charts",
+    "svg-charts",
+    "prototype"
+  ],
+  "license": "MIT",
+  "type": "commonjs",
+  "requirementsMap": "../REQUIREMENTS.md",
+  "source": {
+    "frontend": "css/styles.css + index.html — REQ_01, REQ_12 (responsive)",
+    "data": "js/snapshot.data.js, js/data.js, data/worldcup.json — REQ_10, REQ_11",
+    "store": "js/store.js — REQ_05",
+    "ai": "js/ai.js — REQ_07 (generateTeamSummary, detectDataLimitations), REQ_08 (generateFanRecommendations), REQ_09 (aiHasKey fallback) (+ js/config.js)",
+    "visualization": "js/charts.js — REQ_06 (renderSupportChart, updateSupportCharts)",
+    "ui": "js/ui.js — REQ_01, REQ_02, REQ_03, REQ_04, REQ_05",
+    "tests": "tests/unit.test.js — 14 zero-dependency unit tests (run: npm test)"
+  },
+  "scripts": {
+    "start": "npx --yes serve -l 8000 .",
+    "serve": "python3 -m http.server 8000",
+    "test": "node tests/unit.test.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Demo Cue Sheet — World Cup 2026 Fan Dashboard</title>
+<style>
+  :root{ --ink:#111; --mut:#555; --line:#ccc; --turf:#0b7a41; --gold:#a06b00; }
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);margin:0;padding:26px 30px;line-height:1.35}
+  h1{font-size:22px;margin:0 0 2px}
+  .sub{color:var(--mut);font-size:13px;margin-bottom:6px}
+  .bar{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:8px 0;margin-bottom:10px}
+  .bar b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;vertical-align:top;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);border-bottom:2px solid var(--ink)}
+  .t{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700;color:var(--turf);width:52px}
+  .do{width:38%}
+  .cap{font-weight:600}
+  .cap .q{color:var(--gold)}
+  .foot{margin-top:12px;font-size:12px;color:var(--mut);display:flex;gap:22px;flex-wrap:wrap}
+  .foot b{color:var(--ink)}
+  .keys{display:inline-block;border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:#f4f4f4;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  @media print{ body{padding:14px 16px} .noprint{display:none} th{border-bottom:2px solid #000} }
+  .btn{display:inline-block;margin:10px 0 0;padding:8px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:#f4f4f4;font-size:13px}
+</style>
+</head>
+<body>
+<h1>🎬 Demo Cue Sheet — World Cup 2026 Fan Dashboard</h1>
+<div class="sub">Silent screen recording + on-screen captions · target 2:30–3:00 (window is 2–4 min)</div>
+<div class="bar">
+  <span><b>Record:</b> <span class="keys">Win + Alt + R</span> start/stop (Game Bar)</span>
+  <span><b>Captions:</b> add text in Clipchamp after recording</span>
+  <span><b>Pace:</b> move cursor slowly · hold each screen ~2–3s</span>
+  <span><b>Export:</b> 1080p MP4</span>
+</div>
+
+<table>
+  <thead><tr><th class="t">Time</th><th class="do">Do this on screen</th><th>Caption to overlay</th></tr></thead>
+  <tbody>
+    <tr><td class="t">0:00</td><td class="do">Overview tab. Point cursor at the “SAMPLE DATA · not FIFA” stamp.</td>
+        <td class="cap">World Cup 2026 Fan Engagement Prototype — <span class="q">independent, not affiliated with FIFA</span>. Runs locally, offline, no build step.</td></tr>
+    <tr><td class="t">0:15</td><td class="do">Slowly pass over the 4 summary cards, then the Top-supported bars.</td>
+        <td class="cap">48 teams · 12 groups · live fan-support momentum.</td></tr>
+    <tr><td class="t">0:35</td><td class="do">Teams tab. Type in search, change a filter, change the sort.</td>
+        <td class="cap">Explore all 48 teams. Search, filter by group / confederation, sort by support.</td></tr>
+    <tr><td class="t">1:00</td><td class="do">Click a big team (e.g. Brazil) to open the modal. Pause on the stats row.</td>
+        <td class="cap">Each team profile: full stats, best historical finish, and history.</td></tr>
+    <tr><td class="t">1:20</td><td class="do">In the modal, point at the AI briefing, its “source” line, and the AI badge.</td>
+        <td class="cap"><span class="q">AI briefing — grounded in the dataset only.</span> No API key needed; it never invents scores.</td></tr>
+    <tr><td class="t">1:40</td><td class="do">Groups &amp; Results tab. Scroll through 2–3 group tables.</td>
+        <td class="cap">Group standings &amp; results — clearly labelled as sample data.</td></tr>
+    <tr><td class="t">2:00</td><td class="do">Fan Profile tab. Fill name + region, pick a team, choose a style.</td>
+        <td class="cap">Build a lightweight fan card — no login.</td></tr>
+    <tr><td class="t">2:15</td><td class="do">Click Save. The fan card + AI briefing appear.</td>
+        <td class="cap">Saving generates a personalized, grounded AI briefing and backs your team.</td></tr>
+    <tr><td class="t">2:30</td><td class="do">Support tab. Point at the count that just changed.</td>
+        <td class="cap">Support analytics update live from every profile.</td></tr>
+    <tr><td class="t">2:45</td><td class="do">Quick cut: show the GitHub repo page (README + data/ + docs/ folders).</td>
+        <td class="cap">Committed data snapshot, README, and architecture diagram — full submission on GitHub.</td></tr>
+    <tr><td class="t">2:55</td><td class="do">End on the Overview / title screen.</td>
+        <td class="cap">Thanks for watching.</td></tr>
+  </tbody>
+</table>
+
+<div class="foot">
+  <span><b>Before recording:</b> full-screen the browser · do one silent dry run · close notifications.</span>
+  <span><b>After:</b> trim dead air · export <b>worldcup-fan-dashboard-demo.mp4</b>.</span>
+</div>
+
+<div class="noprint">
+  <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <span style="font-size:12px;color:#555;margin-left:8px">Tip: “Save as PDF” in the print dialog for a clean one-pager on a second screen or phone.</span>
+</div>
+</body>
+</html>
